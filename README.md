@@ -1,4 +1,4 @@
-# Idea Manager Backend
+# Ideas Manager Backend
 
 ## **Build**
 
