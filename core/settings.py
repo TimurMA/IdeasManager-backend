@@ -82,7 +82,7 @@ from dotenv import load_dotenv
 load_dotenv('.env')
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'manage-idea',
         'USER': 'postgres',
         'PASSWORD': os.environ['db_password'],
