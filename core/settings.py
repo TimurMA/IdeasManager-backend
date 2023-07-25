@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'pytils',
     'psycopg2',
     'dotenv',
+
+    'apps.auth.apps.AuthConfig',
 ]
 
 MIDDLEWARE = [
@@ -87,7 +89,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': os.environ['db_password'],
         'HOST': 'localhost',
-        'PORT': 5432,
+        'PORT': 4444,
     }
 }
 
