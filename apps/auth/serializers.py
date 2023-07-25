@@ -10,3 +10,10 @@ class UserAuthSerializer(ModelSerializer):
             'pk': {'read_only': True},
             'password': {'write_only': True}
         }
+
+    def to_internal_value(self, data):
+        if not data.get('first_name'):
+            data.update({'first_name': 'Джон'})
+        if not data.get('last_name'):
+            data.update({'last_name': 'Доу'})
+        return super(UserAuthSerializer, self).to_internal_value(data)
