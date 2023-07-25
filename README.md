@@ -11,7 +11,7 @@ git clone https://github.com/TimurMA/IdeasManager-backend.git
 ```
 pip install -r requirements.txt
 
-python manage.py runserver
+python manage.py runserver 2222
 ```
 
-Server runs backend on localhost:8000
+Server runs backend on localhost:2222
