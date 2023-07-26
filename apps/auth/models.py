@@ -11,6 +11,5 @@ class User(AbstractUser):
     role = models.CharField(max_length=13, choices=RoleType.choices, default = 'initializer', verbose_name='Роль')
 
     groups = None
-    user_permissions = None
 
 
