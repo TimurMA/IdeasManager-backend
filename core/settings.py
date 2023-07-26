@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'apps.auth.apps.AuthConfig',
+    'apps.ideas_manager.apps.IdeasManagerConfig'
 ]
 
 MIDDLEWARE = [
