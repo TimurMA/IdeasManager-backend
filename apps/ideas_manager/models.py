@@ -13,3 +13,6 @@ class Idea(models.Model):
     rating = models.FloatField(default=0.0,)
     risk = models.FloatField(default=0.0,)
 
+    def __str__(self) -> str:
+        return self.name
+
