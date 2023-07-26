@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'psycopg2',
     'dotenv',
     'corsheaders',
+    'bcrypt',
 
     'apps.auth.apps.AuthConfig',
     'apps.ideas_manager.apps.IdeasManagerConfig'
@@ -94,6 +95,10 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
