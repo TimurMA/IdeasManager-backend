@@ -4,8 +4,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .serializers import UserAuthSerializer
-from .models import User
+from .serializers import UserAuthSerializer, RoleSerializer, UserInvitationSerializer
+from .models import User, Role
 
 from django.contrib.auth.hashers import check_password
 
@@ -14,7 +14,7 @@ class LoginAPI(APIView):
     def post(self, request):
         try:
             user = User.objects.get(
-                username=request.data["username"], role=request.data["role"]
+                username=request.data["username"]
             )
             is_correct_password = check_password(
                 request.data["password"], user.password
@@ -29,14 +29,47 @@ class LoginAPI(APIView):
             return Response({"error": "Ошибка авторизации"})
 
 
-class RegisterAPI(APIView):
+
+class InvitationRegisterAPI(APIView):
     def post(self, request):
+            if User.objects.filter(email=request.data.get('email')).exists():
+                user = User.objects.get(email=request.data.get('email'))
+                if user.username is None and user.password=='':
+                    user.delete()
+                else:
+                    return Response({"error": "Пользователь уже зарегестрирован"})
+            try:
+                serializer = UserInvitationSerializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+
+                user = User.objects.get(email=serializer.data.get('email'), token=serializer.data.get('token'))
+
+                Role.objects.filter(user__id=user.id, role='initializer').delete()
+                role_serializer = RoleSerializer(data = {'user': user.pk, 'role':'initializer'})
+                role_serializer.is_valid(raise_exception=True)
+                role_serializer.save()
+
+                user_role = Role.objects.get(user__id=user.id, role='initializer')
+
+                user.roles.add(user_role)
+                
+                return Response({"success": "Успешное приглашение пользователя"})
+            except:
+                return Response({"error": "Ошибка приглашения пользователя"})
+    
+    def put(self, request, *args, **kwargs):
+        token = kwargs.get('token', None)
+        if not token:
+            return Response({'error': 'Method PUT not allowed'})
+        
         try:
-            serializer = UserAuthSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-
-            serializer.save()
-            return Response({"success": "Успешное добавление пользователя"})
-
+            instance = User.objects.get(token=token)
         except:
-            return Response({"error": "Ошибка регистрации пользователя"})
+            return Response({'error': 'Object does not exist'})
+        
+        serializer = UserAuthSerializer(data=request.data, instance=instance)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'put': serializer.data})
+                
