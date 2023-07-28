@@ -8,7 +8,7 @@ from .serializers import UserAuthSerializer, RoleSerializer, UserInvitationSeria
 from .models import User, Role
 
 from django.contrib.auth.hashers import check_password
-
+from django.conf import settings
 
 class LoginAPI(APIView):
     def post(self, request):
@@ -31,6 +31,18 @@ class LoginAPI(APIView):
 
 
 class InvitationRegisterAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get('token', None)
+        if not token:
+            return Response({'error': 'Method PUT not allowed'})
+        
+        try:
+            instance = User.objects.get(token=token)
+        except:
+            return Response({'error': 'Object does not exist'})
+        
+        return Response({'posts': UserAuthSerializer(instance).data})
+            
     def post(self, request):
             if User.objects.filter(email=request.data.get('email')).exists():
                 user = User.objects.get(email=request.data.get('email'))
@@ -53,6 +65,11 @@ class InvitationRegisterAPI(APIView):
                 user_role = Role.objects.get(user__id=user.id, role='initializer')
 
                 user.roles.add(user_role)
+                user.email_user(
+                    'Приглашение',
+                    f'Ссылка на приглашение localhost:2222/api/v1/invite/{user.token}/',
+                    from_email='settings.EMAIL_HOST_USER',
+                    )
                 
                 return Response({"success": "Успешное приглашение пользователя"})
             except:
