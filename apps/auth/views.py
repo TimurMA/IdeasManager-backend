@@ -1,5 +1,5 @@
-from django.shortcuts import render
-
+from core.utils.read_request_file import read_request_file
+from core.utils.extract_emails import extract_emails_from_content
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -47,36 +47,62 @@ class InvitationRegisterAPI(APIView):
         return Response({'posts': UserAuthSerializer(instance).data})
             
     def post(self, request):
-            if User.objects.filter(email=request.data.get('email')).exists():
-                user = User.objects.get(email=request.data.get('email'))
-                if user.username is None and user.password=='':
-                    user.delete()
-                else:
-                    return Response({"error": "Пользователь уже зарегестрирован"})
+        if request.data.get('uploaded_file', ''):
             try:
-                serializer = UserInvitationSerializer(data=request.data)
+                readed_file = read_request_file(request.data.get('uploaded_file', ''))
+            except:
+                return Response({
+                    'error': 'Неверный формат фаила'
+                })
+            emails = extract_emails_from_content(readed_file)
+        elif request.data.get('emails', ''):
+            emails = request.data.get('emails')
+        else:
+            return Response({
+                'error': 'Введите электронные адреса для отправки приглашений'
+            })
+        if not request.data.get('roles', ''):
+            return Response({
+                'error': 'добавьте роли'
+            })
+        else:
+            roles = request.data.get('roles')
+        
+
+        try:
+            for email in emails:
+                if User.objects.filter(email=email).exists():
+                    user = User.objects.get(email=email)
+                    if user.username is None and user.password=='':
+                        user.delete()
+                    else:
+                        return Response({"error": "Пользователь уже зарегестрирован"})
+                
+                serializer = UserInvitationSerializer(data={'email': email})
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
 
                 user = User.objects.get(email=serializer.data.get('email'), token=serializer.data.get('token'))
 
-                Role.objects.filter(user__id=user.id, role='initializer').delete()
-                role_serializer = RoleSerializer(data = {'user': user.pk, 'role':'initializer'})
-                role_serializer.is_valid(raise_exception=True)
-                role_serializer.save()
 
-                user_role = Role.objects.get(user__id=user.id, role='initializer')
+                for role in roles:
+                    Role.objects.filter(user__id=user.id, role=role).delete()
+                    role_serializer = RoleSerializer(data = {'user': user.pk, 'role':role})
+                    role_serializer.is_valid(raise_exception=True)
+                    role_serializer.save()
 
-                user.roles.add(user_role)
+                    user_role = Role.objects.get(user__id=user.id, role=role)
+
+                    user.roles.add(user_role)
+                
                 user.email_user(
                     'Приглашение',
                     f'Ссылка на приглашение localhost:2222/api/v1/invite/{user.token}/',
                     from_email='settings.EMAIL_HOST_USER',
                     )
-                
-                return Response({"success": "Успешное приглашение пользователя"})
-            except:
-                return Response({"error": "Ошибка приглашения пользователя"})
+            return Response({"success": "Успешное приглашение пользователей"})
+        except:
+            return Response({"error": "Ошибка приглашения пользователей"})
     
     def put(self, request, *args, **kwargs):
         token = kwargs.get('token', None)
