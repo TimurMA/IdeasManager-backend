@@ -21,7 +21,10 @@ class LoginAPI(APIView):
             )
 
             if is_correct_password:
-                return Response({"user": UserAuthSerializer(user).data})
+                return Response({
+                    "user": UserAuthSerializer(user).data,
+                    'roles': [role.role for role in user.roles.all()]
+                    })
             else:
                 return Response({"error": "Ошибка авторизации"})
 
@@ -88,5 +91,8 @@ class InvitationRegisterAPI(APIView):
         serializer = UserAuthSerializer(data=request.data, instance=instance)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'put': serializer.data})
+        return Response({
+                    "user": serializer.data,
+                    'roles': [role.role for role in instance.roles.all()]
+                    })
                 
