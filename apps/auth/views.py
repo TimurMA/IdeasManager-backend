@@ -76,7 +76,7 @@ class InvitationRegisterAPI(APIView):
                     if user.username is None and user.password=='':
                         user.delete()
                     else:
-                        return Response({"error": "Пользователь уже зарегестрирован"})
+                        continue
                 
                 serializer = UserInvitationSerializer(data={'email': email})
                 serializer.is_valid(raise_exception=True)
