@@ -7,7 +7,7 @@ from apps.ideas_manager.views import IdeasViewSet
 from rest_framework import routers
 
 router = routers.SimpleRouter()
-router.register(r'idea_manager', IdeasViewSet)
+router.register(r'ideas_manager', IdeasViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
