@@ -1,13 +1,8 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
 from .models import Idea
 
-class IdeaSerializer(ModelSerializer):
+class IdeaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Idea
-        fields = '__all__'
-        extra_kwargs = {
-            'time_create': {'read_only': True},
-            'time_update': {'read_only': True}
-        }
-        
+        fields = ('id', 'initator', 'name', 'time_create', 'time_update', 'status', 'rating', 'risk')
