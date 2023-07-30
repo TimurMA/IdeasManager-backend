@@ -10,7 +10,7 @@ class IdeasViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         if kwargs.get('token', ''):
-            data = self.get_queryset().filter(initator=kwargs.get('token', ''))
+            data = self.get_queryset().filter(initiator=kwargs.get('token', ''))
             serializer_data = self.get_serializer(data, many=True)
             return Response(serializer_data.data)
 

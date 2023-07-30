@@ -15,7 +15,7 @@ class Idea(models.Model):
     status = models.CharField(max_length=15, choices=StatusType.choices, default='на согласовании')
     rating = models.FloatField(default=0.0,)
     risk = models.FloatField(default=0.0,)
-    initator = models.ForeignKey('AuthApi.User', on_delete=models.CASCADE, verbose_name='Инициатор', to_field='token')
+    initiator = models.ForeignKey('AuthApi.User', on_delete=models.CASCADE, verbose_name='Инициатор', to_field='token')
 
     def __str__(self) -> str:
         return self.name

@@ -41,7 +41,7 @@ class Role(models.Model):
     class RoleType(models.TextChoices):
         expert = "expert"
         admin = "admin"
-        initator = "initator"
+        initiator = "initiator"
         project_office = "project office"
 
     user = models.ForeignKey('User', on_delete=models.CASCADE, verbose_name='Пользователь')
@@ -51,3 +51,5 @@ class Role(models.Model):
         default="админ",
         verbose_name="Роль",
     )
+
+# class Invite(models.Model):
