@@ -10,6 +10,9 @@ from .models import User, Role
 
 from django.contrib.auth.hashers import check_password
 from django.conf import settings
+from django.utils import timezone
+
+from datetime import timedelta
 
 class LoginAPI(APIView):
     def post(self, request):
@@ -43,8 +46,13 @@ class InvitationRegisterAPI(APIView):
         try:
             instance = User.objects.get(token=token)
         except:
-            return Response({'error': 'Object does not exist'})
-        
+            return Response({'error': 'Вы не приглашены'})
+        print(instance.date_joined + timedelta(days=+3))
+        print(timezone.now())
+        if instance.date_joined + timedelta(days=+3) < timezone.now():
+            instance.delete()
+            return Response({'error': 'Срок приглашения истек'})
+
         return Response({'posts': UserAuthSerializer(instance).data})
             
     def post(self, request):
@@ -120,7 +128,7 @@ class InvitationRegisterAPI(APIView):
         serializer = UserAuthSerializer(data=request.data, instance=instance)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        
+
         return Response({
                     "user": serializer.data,
                     'roles': [role.role for role in instance.roles.all()]
