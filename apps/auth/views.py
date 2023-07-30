@@ -1,5 +1,6 @@
 from core.utils.read_request_file import read_request_file
 from core.utils.extract_emails import extract_emails_from_content
+from core.utils.send_message_async import EmailThread
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -94,12 +95,14 @@ class InvitationRegisterAPI(APIView):
                     user_role = Role.objects.get(user__id=user.id, role=role)
 
                     user.roles.add(user_role)
+                    
+                EmailThread(
+                    subject='Приглашение', 
+                    message=f'Ссылка на приглашение localhost:2222/api/v1/invite/{user.token}/',
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_user=user.email
+                    ).start()
                 
-                user.email_user(
-                    'Приглашение',
-                    f'Ссылка на приглашение localhost:2222/api/v1/invite/{user.token}/',
-                    from_email='settings.EMAIL_HOST_USER',
-                    )
             return Response({"success": "Успешное приглашение пользователей"})
         except:
             return Response({"error": "Ошибка приглашения пользователей"})
@@ -117,6 +120,7 @@ class InvitationRegisterAPI(APIView):
         serializer = UserAuthSerializer(data=request.data, instance=instance)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
                     "user": serializer.data,
                     'roles': [role.role for role in instance.roles.all()]
