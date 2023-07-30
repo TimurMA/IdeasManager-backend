@@ -2,11 +2,14 @@ from django.db import models
 
 class Idea(models.Model):
     class StatusType(models.TextChoices):
-        on_approval = 'на согласовании'
-        on_adoption = 'на утверждении'
-        adopted = 'утверждено'
+        on_approval = 'on approval'
+        on_adoption = 'on adoption'
+        adopted = 'adopted'
 
-    name = models.CharField(max_length=127, verbose_name="Название идей")
+    name = models.CharField(max_length=127, verbose_name="Название идеи")
+    problem = models.TextField(verbose_name="Проблема, которую решает ваша идея")
+    solution = models.TextField(verbose_name="Предлогаемое решение")
+    proposed_result = models.TextField(verbose_name='Предпологаемый результат')
     time_create = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     time_update = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=15, choices=StatusType.choices, default='на согласовании')

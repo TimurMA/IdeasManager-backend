@@ -39,10 +39,10 @@ class User(AbstractUser):
 
 class Role(models.Model):
     class RoleType(models.TextChoices):
-        expert = "эксперт"
-        admin = "админ"
-        initator = "инициатор"
-        projectOffice = "проектный офис"
+        expert = "expert"
+        admin = "admin"
+        initator = "initator"
+        project_office = "project office"
 
     user = models.ForeignKey('User', on_delete=models.CASCADE, verbose_name='Пользователь')
     role = models.CharField(
